@@ -10,27 +10,12 @@
 #include "list.h"
 #include "note.h"
 
-#define BLUE 0;
-#define YELLOW 1;
-#define GREEN 2;
-#define PINK 3;
-#define PURPLE 4;
-#define GREY 5;
-
-const int COLORS[6][3] = {
-    {173, 244, 255},
-    {254, 244, 156},
-    {177, 253, 160},
-    {252, 197, 197},
-    {182, 202, 255},
-    {238, 238, 238}
-};
-
 void print_menu() 
 {
     printf("\nChoose an option\n");
     printf("[c] Create a new note\n");
     printf("[p] Print all notes\n");
+    printf("[o] Pop a note\n");
     printf("[w] Write to file\n");
     printf("[q] Quit\n");
 }
@@ -46,21 +31,18 @@ int rand_lim(int limit) {
     return retval;
 }
 
-struct Note* random_note(char *text) 
+Note* random_note(char *text) 
 {
     int x = rand_lim(1920);
     int y = rand_lim(1080);
     int h = rand_lim(300);
     int w = rand_lim(500);
-
-    int index = rand_lim(5);
-      
-    return note_new(text, x, y, h, w, COLORS[index][0], COLORS[index][1], COLORS[index][2]);
+    return note_new(text, x, y, h, w, note_colors[rand() % 4]);
 }
 
-void list_print(struct List *list) 
+void list_print(List *list) 
 {
-    struct Element *curr = list->head;
+    Element *curr = list->head;
     while(curr != NULL) 
     {
         printf("\n%p\n", curr);
@@ -70,16 +52,16 @@ void list_print(struct List *list)
     }
 }
 
-void write_notes(struct List *list) 
+void write_notes(List *list) 
 {
     FILE *file= fopen("notes.memo", "wb");
     if (file != NULL) 
     {
-        struct Element *curr = list->head;
+        Element *curr = list->head;
         while(curr != NULL) 
         {    
-            struct Note *note = curr->data;
-            fwrite(note, note_size(), 1, file);
+            Note *note = curr->data;
+            fwrite(note, sizeof(Note), 1, file);
             curr = curr->next;
         }
         
@@ -87,15 +69,18 @@ void write_notes(struct List *list)
     }
 }
 
-void read_notes(struct List *list) 
+void read_notes(List *list) 
 {
-    FILE *file= fopen("notes.memo", "rb");
+    FILE *file = fopen("notes.memo", "rb");
     
     if (file != NULL) {
-        struct Note *note = malloc(note_size());
-        while(fread(note, note_size(), 1, file))
+        while(!feof(file))
         {
-            list_add(note, list);
+	    Note *note = malloc(sizeof(Note));
+            int read = fread(note, sizeof(Note), 1, file);
+	    if (read == 1) {
+	        list_add(note, list);
+	    }
         }
         
         fclose(file);
@@ -103,7 +88,7 @@ void read_notes(struct List *list)
 }
 
 int main(int argc, char **argv) {
-    struct List *list = list_new();
+    List *list = list_new();
     read_notes(list);
     char input;
     while (input != 'q') 
@@ -112,10 +97,16 @@ int main(int argc, char **argv) {
         printf("> ");
         scanf(" %c",&input);
         if (input == 'c') {
-            struct Note *note = random_note(NULL);
+            Note *note = random_note("Test");
             list_add(note, list);
         } else if (input == 'p') {
             list_print(list);
+	} else if (input == 'o') {
+	    Element *element = list_pop(list);
+	    note_print(element->data);
+	    printf("\n");
+	    free(element->data);
+	    free(element);
         } else if (input == 'w') {
             write_notes(list);
         } else if (input == 'q') {

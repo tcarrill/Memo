@@ -10,26 +10,26 @@
 #ifndef LIST_H
 #define	LIST_H
 
-struct Element                 
+typedef struct Element                 
 {
   void *data;                    
   struct Element *next;       
-};
+} Element;
 
-struct List                    
+typedef struct List                    
 {
-  struct Element *head;
-  struct Element *tail;
+  Element *head;
   int size;
-};
+} List;
 
 size_t list_size(void);
 int list_count(void);
-struct List* list_new(void);          
-void list_add(void *data, struct List *list);    
-void list_remove(void *data, struct List *list); 
-void list_destroy(struct List *list);
-void list_print(struct List *list);
+List* list_new(void);          
+void list_add(void *data, List *list);    
+Element* list_pop(List *list); 
+Element* list_peek(List *list);
+void list_destroy(List *list);
+void list_print(List *list);
 
 #endif	/* LIST_H */
 

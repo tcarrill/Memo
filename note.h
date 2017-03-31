@@ -10,11 +10,17 @@
 #ifndef NOTE_H
 #define	NOTE_H
 
-struct Note;
+extern char *note_colors[];
+
+typedef struct Note {
+  char text[2048];
+  int x, y, h, w;
+  char color[7];
+} Note;
 
 size_t note_size(void);
-struct Note* note_new(char *text, int x, int y, int h, int w, int r, int g, int b);
-void note_print(struct Note *note);
+Note* note_new(char *text, int x, int y, int h, int w, const char *color);
+void note_print(Note *note);
 
 #endif	/* NOTE_H */
 

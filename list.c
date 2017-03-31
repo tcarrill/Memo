@@ -4,49 +4,56 @@
 
 size_t list_size(void)
 {
-    return sizeof(struct List);
+    return sizeof(List);
 }
 
-struct List* list_new(void)
+List* list_new(void)
 {
-    struct List *list = malloc(list_size());
+    List *list = malloc(list_size());
 
     list->size = 0;
     list->head = NULL;
-    list->tail = NULL;
     
     return list;
 }
 
-void list_add(void *data, struct List *list)
+void list_add(void *data, List *list)
 {
-    struct Element *element = malloc(sizeof(struct Element));
+    Element *element = malloc(sizeof(Element));
     element->data = data;
     
-    if (list->head == NULL) {
-        list->head = element;
-    } else {
-        list->tail->next = element;
-    }
-    
-    element->next = NULL;  
-    list->tail = element;
+    element->next = list->head;
+    list->head = element;  
     list->size++;
 }
 
-void list_remove(void *data, struct List *list) 
+Element* list_pop(List *list) 
 {
+    if (list->head == NULL) {
+	return NULL;
+    } 
     
+    Element *cur = list->head;
+    list->head = cur->next;
+    list->size--;
+    return cur;	
 }
 
-void list_destroy(struct List *list)
+Element* list_peek(List *list) 
 {
-    struct Element *curr = list->head;
+    return list->head;
+}
+
+void list_destroy(List *list)
+{
+    Element *curr = list->head;
     while(curr != NULL) 
     {
-        printf("Freeing %p\n", curr);
-        struct Element *temp = curr;
+        Element *temp = curr;
         curr = curr->next;
+	printf("Freeing data %p\n", temp->data);
+	free(temp->data);
+	printf("Freeing %p\n", temp);
         free(temp);
     }
     free(list);
