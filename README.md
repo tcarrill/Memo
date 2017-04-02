@@ -1,3 +1,3 @@
 # memo
-Sticky notes in straight xlib
+Sticky notes with Wayland
 
